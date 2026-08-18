@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>學生閱讀護照｜電子閱讀護照</title>
+<link rel="stylesheet" href="./student-tasks.css?v=3.8">
+
+</head>
+<body>
+<main class="wrap">
+<header class="brand"><div class="logo">閱</div><div><h1>電子閱讀護照</h1><small>學生閱讀與心得</small></div></header>
+<section id="loginCard" class="login-card">
+<h2>學生登入</h2><p class="lead">登入後可查看指定閱讀任務，也可以自由發表自己的閱讀心得。</p>
+<form id="loginForm">
+<div class="field"><label for="className">班級</label><input id="className" autocomplete="organization" placeholder="例如：六年一班" required></div>
+<div class="field"><label for="loginStudentName">姓名</label><input id="loginStudentName" autocomplete="name" placeholder="例如：王小明" required></div>
+<button class="primary wide" type="submit">進入我的閱讀護照</button>
+</form>
+<div id="message" class="message"></div>
+<p class="back-row"><a class="back-link" href="./index.html">← 返回閱讀成果首頁</a></p>
+</section>
+<section id="studentApp" hidden>
+<div class="app-head"><div><h2>嗨，<span id="studentName"></span></h2><div id="studentMeta" class="meta"></div></div><div class="head-actions"><button id="newFreeReviewTop" class="primary">＋ 自由發表心得</button><button id="logoutBtn" class="secondary">登出</button></div></div>
+<div id="summary" class="summary"></div>
+<div class="tabs"><button class="tab active" data-tab="tasks">指定任務</button><button class="tab" data-tab="free">我的自由心得</button></div>
+<section id="tabTasks"><div class="section-head"><h3>老師指定的閱讀任務</h3></div><div id="tasks" class="grid"></div></section>
+<section id="tabFree" hidden><div class="section-head"><div><h3>我的自由閱讀心得</h3><div class="meta">自行選書發表，審核通過後同樣累積 1 篇。</div></div><button id="newFreeReview" class="primary">＋ 發表閱讀心得</button></div><div id="freeReviews" class="grid"></div></section>
+</section>
+</main>
+
+<div id="taskModal" class="modal" hidden><div class="modal-card"><div class="modal-top"><h3 id="taskModalTitle">指定任務心得</h3><button class="x" data-close="taskModal">×</button></div><form id="taskReviewForm"><input type="hidden" name="taskId"><div class="field"><label>心得標題</label><input name="reviewTitle" required></div><div class="field"><label>閱讀頁數</label><input name="pages" type="number" min="0" value="0"></div><div class="field"><label>閱讀心得（至少 100 字）</label><textarea name="reviewContent" rows="9" required></textarea><div id="taskCounter" class="counter">0 / 100 字</div></div><label class="check"><input name="isPublic" type="checkbox"> 審核通過後同意公開於成果首頁</label><button class="primary wide" type="submit">送出指定任務心得</button></form></div></div>
+
+<div id="freeModal" class="modal" hidden><div class="modal-card"><div class="modal-top"><h3>自由發表閱讀心得</h3><button class="x" data-close="freeModal">×</button></div><p class="choice-note"><strong>必填：</strong>書名、作者、出版社、1～5 顆星評價。心得可選擇「文字至少 100 字」或「上傳心得圖片」，兩者擇一即可。</p><form id="freeReviewForm"><div class="field"><label>書名 *</label><input name="bookTitle" maxlength="200" required></div><div class="review-choice"><div class="field"><label>作者 *</label><input name="author" maxlength="120" required></div><div class="field"><label>出版社 *</label><input name="publisher" maxlength="120" required></div></div><div class="field"><label>評價 *</label><select name="rating" required><option value="">請選擇</option><option value="5">★★★★★ 5 顆星</option><option value="4">★★★★☆ 4 顆星</option><option value="3">★★★☆☆ 3 顆星</option><option value="2">★★☆☆☆ 2 顆星</option><option value="1">★☆☆☆☆ 1 顆星</option></select></div><div class="field"><label>心得標題</label><input name="reviewTitle" maxlength="120" placeholder="可不填，系統會自動產生"></div><div class="field"><label>文字心得（至少 100 字）</label><textarea id="freeReviewText" name="reviewContent" rows="8" placeholder="如果不上傳心得圖片，這裡至少要寫 100 個字。"></textarea><div id="freeCounter" class="counter">0 / 100 字</div></div><div class="field"><label>或上傳心得圖片</label><div class="upload-box"><input id="reviewImage" type="file" accept="image/jpeg,image/png,image/webp"><div class="hint">JPG／PNG／WebP，最大 5MB。文字與圖片二擇一即可。</div><img id="imagePreview" class="image-thumb" hidden alt="心得圖片預覽"></div></div><label class="check"><input name="isPublic" type="checkbox"> 審核通過後同意公開文字心得於成果首頁</label><button id="submitFreeButton" class="primary wide" type="submit">送出心得，等待教師審核</button></form></div></div>
+<script src="./config.js?v=3.8"></script><script src="./student-tasks.js?v=3.8"></script>
+</body></html>
