@@ -1,2 +1,9 @@
-# read-passport-v3
-read-passport-v3 - Deployed by EZPage
+# 電子閱讀護照 v3.8.2
+
+## 本版修正
+- 首頁橫幅改為直接內嵌於 index.html，不再依賴 banner.png。
+- GitHub Pages 即使漏傳圖片檔，橫幅仍可正常顯示。
+- 首頁順序維持：導覽列 → 橫幅 → 功能卡 → 統計區。
+- 其餘學生、教師、管理者與 Apps Script 功能維持不變。
+
+部署時可直接把全部檔案覆蓋到 Repository 根目錄。
