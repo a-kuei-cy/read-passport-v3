@@ -16,3 +16,24 @@
 .review-image-actions a,.image-error a{color:var(--teal-dark);font-weight:800;text-decoration:none;}
 .image-error{text-align:center;color:var(--danger);line-height:1.7}.image-error small{display:block;color:var(--muted);margin:3px 0 7px;}
 @keyframes rpImageLoading{to{background-position:-220% 0;}}
+
+
+/* v3.9.4 批次審核 */
+.batch-review-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:12px 0 16px;padding:12px 14px;border:1px solid #dbe7df;border-radius:14px;background:#f7fbf8}
+.batch-select-all{display:flex;align-items:center;gap:8px;font-weight:700;color:#17333a}
+.batch-select-all input,.review-check{width:18px;height:18px;accent-color:#0f7f73}
+.batch-review-actions{display:flex;gap:8px;margin-left:auto}
+.batch-review-actions button{min-height:40px;padding:0 16px;border-radius:10px}
+.batch-review-actions .primary{background:#0f7f73;color:#fff;border-color:#0f7f73}
+.batch-review-actions .danger{background:#fff1ef;color:#a43e35;border-color:#efc9c4}
+.batch-review-actions button:disabled{opacity:.45;cursor:not-allowed}
+@media(max-width:760px){.batch-review-actions{width:100%;margin-left:0}.batch-review-actions button{flex:1}.batch-review-bar{align-items:stretch}}
+
+
+/* v3.9.4.1 管理者批次審核顯示修正 */
+.admin-only[hidden]{display:none!important}
+#batchReviewBar.admin-only:not([hidden]){display:flex!important}
+.batch-review-title{display:flex;flex-direction:column;gap:2px;padding-right:8px;border-right:1px solid #dbe7df}
+.batch-review-title strong{font-size:15px;color:#0c5f59}
+.batch-review-title small{font-size:11px;color:#73868a}
+@media(max-width:760px){.batch-review-title{width:100%;border-right:0;border-bottom:1px solid #dbe7df;padding:0 0 8px}}

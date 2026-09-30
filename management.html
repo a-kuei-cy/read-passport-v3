@@ -8,10 +8,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800;900&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./management.css?v=3.9.0">
+  <link rel="stylesheet" href="./management.css?v=3.9.4.1">
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
-  <script src="./config.js?v=3.9.0" defer></script>
-  <script src="./management.js?v=3.9.0" defer></script>
+  <script src="./config.js?v=3.9.4.1" defer></script>
+  <script src="./management.js?v=3.9.4.1" defer></script>
 </head>
 <body>
   <section id="loginView" class="login-view">
@@ -73,7 +73,16 @@
 
       <section id="page-reviews" class="page">
         <div class="filter-bar"><input id="reviewSearch" type="search" placeholder="搜尋學生、書名或心得"><select id="reviewStatus"><option value="pending">待審核</option><option value="approved">已通過</option><option value="rejected">已退回</option><option value="all">全部</option></select><button id="reviewFilterButton">套用篩選</button></div>
-        <div class="table-panel"><table><thead><tr><th>學生</th><th>書籍／任務</th><th>心得摘要</th><th>篇數計入</th><th>狀態</th><th>操作</th></tr></thead><tbody id="reviewTable"></tbody></table></div>
+        <div id="batchReviewBar" class="batch-review-bar admin-only" aria-label="管理者批次審核工具">
+          <div class="batch-review-title"><strong>批次審核</strong><small>僅系統管理者可使用</small></div>
+          <label class="batch-select-all"><input id="reviewSelectAll" type="checkbox"> 全選目前待審核</label>
+          <span id="reviewSelectedCount">已選 0 筆</span>
+          <div class="batch-review-actions">
+            <button id="batchApproveReviews" type="button" class="primary">✓ 批次通過</button>
+            <button id="batchRejectReviews" type="button" class="danger">↩ 批次退回</button>
+          </div>
+        </div>
+        <div class="table-panel"><table><thead><tr><th class="admin-only">選取</th><th>學生</th><th>書籍／任務</th><th>心得摘要</th><th>篇數計入</th><th>狀態</th><th>操作</th></tr></thead><tbody id="reviewTable"></tbody></table></div>
       </section>
 
       <section id="page-tasks" class="page">

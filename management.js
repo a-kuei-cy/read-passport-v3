@@ -1,5 +1,6 @@
 const API_URL=(window.APP_CONFIG&&window.APP_CONFIG.API_URL)||'';
 const state={role:'',className:'',apiKey:'',data:{summary:{},records:[],students:[],books:[],tasks:[]},page:'dashboard',editing:null,reviewing:null};
+const selectedReviewIds=new Set();
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=v=>String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 const safeNumber=(v,fallback=0)=>{if(v===null||v===undefined||v==='')return fallback;if(v instanceof Date)return fallback;const n=Number(v);return Number.isFinite(n)?n:fallback};
@@ -19,6 +20,9 @@ function bind(){
 document.addEventListener('keydown',e=>{if(e.key==='Escape')$('.sidebar').classList.remove('open')});
 document.addEventListener('click',e=>{const side=$('.sidebar'),toggle=$('#sidebarToggle');if(window.innerWidth<=760&&side.classList.contains('open')&&!side.contains(e.target)&&!toggle.contains(e.target))side.classList.remove('open')});
  $('#reviewFilterButton').addEventListener('click',renderReviews); $('#recordFilterButton').addEventListener('click',renderRecords);
+ $('#reviewSelectAll').addEventListener('change',toggleSelectAllReviews);
+ $('#batchApproveReviews').addEventListener('click',()=>batchReviewAction('approved'));
+ $('#batchRejectReviews').addEventListener('click',()=>batchReviewAction('rejected'));
  $('#newTaskButton').addEventListener('click',()=>openEditor('task'));
  $('#newRecordButton').addEventListener('click',()=>openEditor('record'));
  $('#newStudentButton').addEventListener('click',()=>openEditor('student'));
@@ -38,13 +42,74 @@ function restoreSession(){try{const s=JSON.parse(sessionStorage.getItem('rp-admi
 async function login(e){e.preventDefault();state.role=$('#loginRole').value;state.className=$('#loginClass').value.trim();state.apiKey=$('#loginKey').value.trim();if(state.role==='teacher'&&!state.className)return showLoginError('請輸入管理班級');try{const r=await api('login',{role:state.role,className:state.className,apiKey:state.apiKey});state.className=r.className||state.className;sessionStorage.setItem('rp-admin',JSON.stringify({role:state.role,className:state.className,apiKey:state.apiKey}));enterApp();}catch(err){showLoginError(err.message)}}
 function showLoginError(t){$('#loginError').textContent=t}
 function logout(){sessionStorage.removeItem('rp-admin');location.reload()}
-function enterApp(){document.body.classList.add('is-authenticated');$('#loginView').hidden=true;$('#appView').hidden=false;$$('.admin-only').forEach(x=>x.hidden=state.role!=='admin');$('#userBadge').innerHTML=`<strong>${state.role==='admin'?'系統管理者':'班級教師'}</strong><small>${esc(state.role==='admin'?'全校管理':state.className)}</small>`;$('#taskScopeHint').textContent=state.role==='admin'?'可指定全年級或特定班級閱讀任務，完成並審核後計入篇數。':`僅可指定 ${state.className} 學生閱讀任務，完成並審核後計入篇數。`;loadAll()}
+function enterApp(){document.body.classList.add('is-authenticated');$('#loginView').hidden=true;$('#appView').hidden=false;applyRoleVisibility();$('#userBadge').innerHTML=`<strong>${state.role==='admin'?'系統管理者':'班級教師'}</strong><small>${esc(state.role==='admin'?'全校管理':state.className)}</small>`;$('#taskScopeHint').textContent=state.role==='admin'?'可指定全年級或特定班級閱讀任務，完成並審核後計入篇數。':`僅可指定 ${state.className} 學生閱讀任務，完成並審核後計入篇數。`;loadAll()}
+
+function applyRoleVisibility(){
+ const isAdmin=state.role==='admin';
+ $$('.admin-only').forEach(x=>{x.hidden=!isAdmin;});
+ const bar=$('#batchReviewBar');
+ if(bar){bar.hidden=!isAdmin;bar.style.display=isAdmin?'flex':'none';}
+ const selectHead=document.querySelector('#page-reviews thead .admin-only');
+ if(selectHead)selectHead.hidden=!isAdmin;
+}
 async function api(action,payload={}){if(!API_URL)throw new Error('尚未在 config.js 設定 API_URL');const body={action,role:state.role,className:state.className,apiKey:state.apiKey,...payload};const res=await fetch(API_URL+'?action='+encodeURIComponent(action),{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body),redirect:'follow'});const text=await res.text();if(/^\s*</.test(text))throw new Error('Apps Script 回傳 HTML，請重新部署 Web App 並設為任何人可存取');let json;try{json=JSON.parse(text)}catch(e){throw new Error('API 回傳格式錯誤')};if(!json.success)throw new Error(json.message||'操作失敗');return json.data}
 async function loadAll(){try{toast('資料載入中…');state.data=await api('getManagementData');renderAll();toast('資料已更新')}catch(e){toast(e.message,true)}}
 function renderAll(){renderDashboard();renderReviews();renderTasks();renderRecords();renderStudents();renderBooks()}
 function showPage(page){state.page=page;$$('.page').forEach(p=>p.classList.toggle('active',p.id===`page-${page}`));$$('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.page===page));const names={dashboard:['管理儀表板','掌握閱讀成果與待辦事項'],reviews:['心得審核','審核學生閱讀心得並給予回饋'],tasks:['閱讀任務','指定書籍、期限與心得要求'],records:['閱讀資料','編修全校閱讀紀錄'],students:['學生管理','維護學生與班級資料'],books:['書籍管理','維護指定閱讀書目'],exports:['資料匯出','下載管理資料 CSV']};$('#pageTitle').textContent=names[page][0];$('#pageSubtitle').textContent=names[page][1];$('.sidebar').classList.remove('open')}
 function renderDashboard(){const s=state.data.summary||{};const cards=[['公開心得',s.approved||0,'已核准並計入篇數'],['待審核',s.pending||0,'需要教師處理'],['進行任務',s.activeTasks||0,'指定閱讀作業'],['累積頁數',safeInt(s.totalPages,0).toLocaleString(),'已通過閱讀紀錄']];$('#statCards').innerHTML=cards.map(x=>`<article class="stat-card"><span class="label">${x[0]}</span><strong>${x[1]}</strong><small>${x[2]}</small></article>`).join('');const pending=state.data.records.filter(r=>r.status==='pending').slice(0,5);$('#pendingPreview').innerHTML=pending.length?pending.map(r=>`<div class="compact-item"><div><strong>${esc(r.studentName)} · ${esc(r.bookTitle)}</strong><p>${esc((r.reviewSummary||r.reviewContent||'').slice(0,42))}</p></div><small>${fmtDate(r.createdAt)}</small></div>`).join(''):'<p>目前沒有待審核心得。</p>';const tasks=state.data.tasks.filter(t=>t.status==='active').slice(0,5);$('#taskPreview').innerHTML=tasks.length?tasks.map(t=>`<div class="compact-item"><div><strong>${esc(t.title)}</strong><p>${esc(t.scopeLabel)} · ${esc(t.bookTitle)}</p></div><small>${t.completedCount||0} 篇</small></div>`).join(''):'<p>目前沒有進行中的任務。</p>'}
-function renderReviews(){const q=$('#reviewSearch').value.trim().toLowerCase(),st=$('#reviewStatus').value;let rows=state.data.records.filter(r=>(st==='all'||r.status===st)&&(!q||[r.studentName,r.bookTitle,r.reviewContent,r.className].join(' ').toLowerCase().includes(q)));$('#reviewTable').innerHTML=rows.length?rows.map(r=>`<tr><td><strong>${esc(r.studentName)}</strong><br><small>${esc(r.className)}</small></td><td><strong>${esc(r.bookTitle)}</strong><br><small>${r.taskId?'指定任務':'自由閱讀'}${r.reviewImageFileId||r.reviewImageUrl?' · 🖼 圖片心得':''}</small></td><td>${esc((r.reviewSummary||r.reviewContent||'').slice(0,70))}</td><td>${r.status==='approved'?'✓ 已累積 1 篇':'尚未計入'}</td><td><span class="status ${esc(r.status)}">${statusText[r.status]||r.status}</span></td><td><div class="row-actions"><button onclick="openReview('${r.recordId}')">${r.status==='pending'?'查看並審核':'查看內容'}</button></div></td></tr>`).join(''):'<tr><td colspan="6">查無資料</td></tr>'}
+function filteredReviewRows(){const q=$('#reviewSearch').value.trim().toLowerCase(),st=$('#reviewStatus').value;return state.data.records.filter(r=>(st==='all'||r.status===st)&&(!q||[r.studentName,r.bookTitle,r.reviewContent,r.className].join(' ').toLowerCase().includes(q)))}
+function renderReviews(){
+ applyRoleVisibility();
+ const rows=filteredReviewRows();
+ const validPending=new Set(state.data.records.filter(r=>r.status==='pending').map(r=>String(r.recordId)));
+ [...selectedReviewIds].forEach(id=>{if(!validPending.has(id))selectedReviewIds.delete(id)});
+ $('#reviewTable').innerHTML=rows.length?rows.map(r=>{
+   const selectable=state.role==='admin'&&r.status==='pending';
+   const checked=selectedReviewIds.has(String(r.recordId))?'checked':'';
+   const selectCell=state.role==='admin'?`<td>${selectable?`<input class="review-check" type="checkbox" data-review-id="${esc(r.recordId)}" ${checked} aria-label="選取 ${esc(r.studentName)} 的心得">`:'—'}</td>`:'';
+   return `<tr>${selectCell}<td><strong>${esc(r.studentName)}</strong><br><small>${esc(r.className)}</small></td><td><strong>${esc(r.bookTitle)}</strong><br><small>${r.taskId?'指定任務':'自由閱讀'}${r.reviewImageFileId||r.reviewImageUrl?' · 🖼 圖片心得':''}</small></td><td>${esc((r.reviewSummary||r.reviewContent||'').slice(0,70))}</td><td>${r.status==='approved'?'✓ 已累積 1 篇':'尚未計入'}</td><td><span class="status ${esc(r.status)}">${statusText[r.status]||r.status}</span></td><td><div class="row-actions"><button onclick="openReview('${r.recordId}')">${r.status==='pending'?'查看並審核':'查看內容'}</button></div></td></tr>`
+ }).join(''):`<tr><td colspan="${state.role==='admin'?7:6}">查無資料</td></tr>`;
+ $$('.review-check').forEach(cb=>cb.addEventListener('change',()=>{const id=String(cb.dataset.reviewId);cb.checked?selectedReviewIds.add(id):selectedReviewIds.delete(id);updateBatchReviewBar()}));
+ updateBatchReviewBar(rows);
+}
+function updateBatchReviewBar(rows=filteredReviewRows()){
+ const bar=$('#batchReviewBar');
+ if(state.role!=='admin'){if(bar){bar.hidden=true;bar.style.display='none';}return;}
+ if(bar){bar.hidden=false;bar.style.display='flex';}
+ const visiblePending=rows.filter(r=>r.status==='pending').map(r=>String(r.recordId));
+ const selectedVisible=visiblePending.filter(id=>selectedReviewIds.has(id));
+ $('#reviewSelectedCount').textContent=`已選 ${selectedReviewIds.size} 筆`;
+ $('#reviewSelectAll').checked=visiblePending.length>0&&selectedVisible.length===visiblePending.length;
+ $('#reviewSelectAll').indeterminate=selectedVisible.length>0&&selectedVisible.length<visiblePending.length;
+ $('#batchApproveReviews').disabled=selectedReviewIds.size===0;
+ $('#batchRejectReviews').disabled=selectedReviewIds.size===0;
+}
+function toggleSelectAllReviews(e){
+ if(state.role!=='admin')return;
+ filteredReviewRows().filter(r=>r.status==='pending').forEach(r=>{const id=String(r.recordId);e.target.checked?selectedReviewIds.add(id):selectedReviewIds.delete(id)});
+ renderReviews();
+}
+async function batchReviewAction(status){
+ if(state.role!=='admin')return toast('僅系統管理者可使用批次審核',true);
+ const recordIds=[...selectedReviewIds];
+ if(!recordIds.length)return toast('請先勾選待審核心得',true);
+ let teacherFeedback='';
+ if(status==='rejected'){
+   teacherFeedback=prompt(`將退回 ${recordIds.length} 篇心得，請輸入統一退回原因：`,'請依教師回饋修改後重新送審。');
+   if(teacherFeedback===null)return;
+   teacherFeedback=teacherFeedback.trim();
+   if(!teacherFeedback)return toast('批次退回需填寫退回原因',true);
+ }
+ const label=status==='approved'?'通過':'退回';
+ if(!confirm(`確定要批次${label} ${recordIds.length} 篇心得嗎？`))return;
+ try{
+   const result=await api('batchReviewRecords',{recordIds,status,teacherFeedback});
+   selectedReviewIds.clear();
+   await loadAll();
+   toast(`批次${label}完成：${result.updatedCount||0} 篇${result.skippedCount?`，略過 ${result.skippedCount} 篇`:''}`);
+ }catch(e){toast(e.message,true)}
+}
+
 function renderTasks(){const rows=state.data.tasks;$('#taskCards').innerHTML=rows.length?rows.map(t=>{const pct=t.targetCount?Math.min(100,Math.round((t.completedCount||0)/t.targetCount*100)):0;return `<article class="task-card"><span class="task-scope">${esc(t.scopeLabel)}</span><h3>${esc(t.title)}</h3><strong>${esc(t.bookTitle)}</strong><p>${esc(t.description||'完成閱讀並撰寫心得。')}</p><div class="task-progress"><i style="width:${pct}%"></i></div><div class="task-meta"><span>${t.completedCount||0} 篇完成</span><span>期限 ${fmtDate(t.dueDate)}</span></div><div class="task-actions"><button onclick="openEditor('task','${t.taskId}')">編輯</button><button onclick="removeItem('task','${t.taskId}')">刪除</button></div></article>`}).join(''):'<p>尚未建立閱讀任務。</p>'}
 function renderRecords(){if(state.role!=='admin')return;const q=$('#recordSearch').value.trim().toLowerCase(),st=$('#recordStatus').value;let rows=state.data.records.filter(r=>(st==='all'||r.status===st)&&(!q||[r.studentName,r.bookTitle,r.className].join(' ').toLowerCase().includes(q)));$('#recordTable').innerHTML=rows.map(r=>`<tr><td>${fmtDate(r.createdAt)}</td><td>${esc(r.studentName)}<br><small>${esc(r.className)}</small></td><td>${esc(r.bookTitle)}</td><td>${r.pages||0}</td><td>${r.taskId?'任務':'自由閱讀'}</td><td><span class="status ${r.status}">${statusText[r.status]||r.status}</span></td><td><div class="row-actions"><button onclick="openEditor('record','${r.recordId}')">編輯</button><button onclick="removeItem('record','${r.recordId}')">刪除</button></div></td></tr>`).join('')||'<tr><td colspan="7">查無資料</td></tr>'}
 function renderStudents(){if(state.role!=='admin')return;$('#studentTable').innerHTML=state.data.students.map(s=>`<tr><td>${esc(s.studentId)}</td><td>${esc(s.studentName)}</td><td>${esc(s.grade)}</td><td>${esc(s.className)}</td><td>${String(s.active)!=='false'?'啟用':'停用'}</td><td><div class="row-actions"><button onclick="openEditor('student','${s.studentId}')">編輯</button><button onclick="removeItem('student','${s.studentId}')">刪除</button></div></td></tr>`).join('')||'<tr><td colspan="6">尚無學生資料</td></tr>'}
