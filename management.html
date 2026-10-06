@@ -8,10 +8,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800;900&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./management.css?v=3.9.4.1">
+  <link rel="stylesheet" href="./management.css?v=3.9.5">
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
-  <script src="./config.js?v=3.9.4.1" defer></script>
-  <script src="./management.js?v=3.9.4.1" defer></script>
+  <script src="./config.js?v=3.9.5" defer></script>
+  <script src="./management.js?v=3.9.5" defer></script>
 </head>
 <body>
   <section id="loginView" class="login-view">
@@ -28,11 +28,11 @@
         </div>
         <label>登入身分
           <select id="loginRole">
-            <option value="teacher">班級教師</option>
+            <option value="teacher">級任教師（審核本班）</option>
             <option value="admin">系統管理者</option>
           </select>
         </label>
-        <label id="classField">管理班級
+        <label id="classField">級任班級
           <input id="loginClass" placeholder="例如：三年一班" autocomplete="organization">
         </label>
         <label>管理金鑰
@@ -109,7 +109,7 @@
   </div>
 
   <dialog id="editDialog"><form id="editForm" method="dialog"><div class="dialog-head"><div><span id="dialogEyebrow">EDIT</span><h2 id="dialogTitle">編輯資料</h2></div><button type="button" id="dialogClose">×</button></div><div id="dialogFields" class="dialog-fields"></div><div class="dialog-actions"><button type="button" id="dialogCancel">取消</button><button type="submit" class="primary-action">儲存變更</button></div></form></dialog>
-  <dialog id="reviewDialog"><form id="reviewForm"><div class="dialog-head"><div><span>REVIEW</span><h2>閱讀心得審核</h2></div><button type="button" data-close-review>×</button></div><div id="reviewDetail"></div><label>教師回饋<textarea id="reviewFeedback" rows="4" placeholder="可填寫鼓勵或退回修改原因"></textarea></label><div class="dialog-actions three"><button type="button" data-close-review>取消</button><button type="button" id="rejectReview" class="danger">退回修改</button><button type="submit" class="primary-action">通過並計入篇數</button></div></form></dialog>
+  <dialog id="reviewDialog"><form id="reviewForm"><div class="dialog-head"><div><span>REVIEW</span><h2>閱讀心得審核</h2></div><button type="button" data-close-review>×</button></div><div id="reviewDetail"></div><label>教師回饋<textarea id="reviewFeedback" rows="4" placeholder="通過可填鼓勵；退回修改請務必填寫原因"></textarea></label><div class="dialog-actions three"><button type="button" data-close-review>取消</button><button type="button" id="rejectReview" class="danger">退回修改</button><button type="submit" class="primary-action">通過並計入篇數</button></div></form></dialog>
   <div id="toast" class="toast"></div>
 </body>
 </html>
