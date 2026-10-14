@@ -4,5 +4,5 @@ window.APP_CONFIG = {
   STUDENT_TASKS_URL: './student-tasks.html',
   RESULTS_HOME_URL: './index.html',
   DEMO_MODE: false,
-  VERSION: '3.9.3'
+  VERSION: '3.9.5'
 };
