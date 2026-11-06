@@ -9,9 +9,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800;900&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=3.9.6-perf2">
-  <script src="./config.js?v=3.9.6-perf2" defer></script>
-  <script src="./script.js?v=3.9.6-perf2" defer></script>
+  <link rel="stylesheet" href="./style.css?v=3.9.6-perf3">
+  <script src="./config.js?v=3.9.6-perf3" defer></script>
+  <script src="./script.js?v=3.9.6-perf3" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">跳到主要內容</a>
@@ -34,7 +34,8 @@
     <div class="container data-status" id="dataStatus" role="status" aria-live="polite">正在載入閱讀成果…</div>
     <section id="top" class="hero-banner">
       <div class="banner-frame">
-        <img width="1536" height="1024" fetchpriority="high" decoding="async" src="./assets/banner-home.jpg" alt="興嘉國小電子閱讀護照，翻開一本書，看見更大的世界">
+        <img width="1536" height="1024" fetchpriority="high" decoding="async" onerror="if(!this.dataset.fallback){this.dataset.fallback='true';this.src='./banner.png';}else{this.hidden=true;this.parentElement.classList.add('banner-unavailable');}" src="./assets/banner-home.jpg" alt="興嘉國小電子閱讀護照，翻開一本書，看見更大的世界">
+        <div class="banner-text-fallback"><strong>翻開一本書，看見更大的世界</strong><p>興嘉國小電子閱讀護照</p></div>
       </div>
       <div class="container banner-dock">
         <a href="#ranking" class="dock-card"><span class="dock-icon green">★</span><span><strong>閱讀之星</strong><small>看看校園閱讀榜</small></span></a>
