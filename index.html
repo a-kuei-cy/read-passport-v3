@@ -9,9 +9,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800;900&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=3.9.6-perf3">
-  <script src="./config.js?v=3.9.6-perf3" defer></script>
-  <script src="./script.js?v=3.9.6-perf3" defer></script>
+  <link rel="stylesheet" href="./style.css?v=20261113">
+  <script src="./config.js?v=20261113" defer></script>
+  <script src="./categories.js?v=20261113" defer></script>
+  <script src="./script.js?v=20261113" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">跳到主要內容</a>
@@ -75,7 +76,7 @@
         <div class="chart-grid">
           <article class="chart-card chart-wide"><div class="card-heading"><div class="card-title-row"><span class="card-icon">▥</span><div><h3>年級閱讀量</h3><p>比較一至六年級閱讀成果</p></div></div><select id="gradeMetric" aria-label="年級閱讀量統計項目"><option value="books">閱讀本數</option><option value="pages">閱讀頁數</option><option value="articles">心得篇數</option></select></div><div class="chart-box"><canvas id="gradeChart"></canvas></div></article>
           <article class="chart-card"><div class="card-heading"><div class="card-title-row"><span class="card-icon coral">⌁</span><div><h3>每月閱讀趨勢</h3><p>本學年度審核通過心得篇數</p></div></div></div><div class="chart-box"><canvas id="monthlyChart"></canvas></div></article>
-          <article class="chart-card"><div class="card-heading"><div class="card-title-row"><span class="card-icon gold">◔</span><div><h3>書籍分類分布</h3><p>學生最常閱讀的主題</p></div></div></div><div class="chart-box"><canvas id="categoryChart"></canvas></div></article>
+          <article class="chart-card"><div class="card-heading"><div class="card-title-row"><span class="card-icon gold">◔</span><div><h3>書籍分類分布</h3><p>依中文圖書十大類統計審核通過心得；舊分類不明者列為待分類</p></div></div></div><div class="chart-box"><canvas id="categoryChart"></canvas></div></article>
         </div>
       </div>
     </section>

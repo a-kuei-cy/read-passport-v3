@@ -39,3 +39,5 @@ button{cursor:pointer}button:disabled,select:disabled{cursor:wait;opacity:.65}
 
 /* Keep the entry usable even when a deployment omits its image. */
 .banner-text-fallback{display:none}.banner-unavailable img{display:none}.banner-unavailable .banner-text-fallback{display:block;text-align:center;padding:clamp(32px,6vw,80px) 24px}.banner-text-fallback strong{font-size:clamp(24px,4vw,44px);color:var(--teal-dark)}.banner-text-fallback p{color:var(--muted)}
+/* Ten classification labels need additional legend space. */
+.chart-card:has(#categoryChart) .chart-box{height:420px}
